@@ -1,6 +1,6 @@
 # the_chef
 
-A new Flutter project.
+The Chef is a flutter based recipe app.
 
 ## Getting Started
 
