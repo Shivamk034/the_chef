@@ -1,16 +1,17 @@
-# the_chef
+# The Chef
 
-A new Flutter project.
+The Chef is a flutter based recipe app.
 
-## Getting Started
+# Features
 
-This project is a starting point for a Flutter application.
+- Explore a vast library of recipes spanning cuisines from around the world.
+- Navigate through recipes effortlessly with an intuitive Swiper interface.
+- Find the perfect dish with ease using our powerful search functionality.
 
-A few resources to get you started if this is your first Flutter project:
+# Tech Used
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Flutter, Dart, Edamam Recipe Api
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Note
+
+Create your own api key from www.edamam.com
