@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_chef/screens/featured_recipes_page.dart';
 import 'package:the_chef/screens/home_screen.dart';
 import 'package:the_chef/screens/login_screen.dart';
 

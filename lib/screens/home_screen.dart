@@ -135,23 +135,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Container(
                       margin: const EdgeInsets.only(top: 10),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           DishCard(
                             image: 'assets/images/pizza.jpg',
                             dishName: 'Pizza',
                           ),
-                          Gap(20),
+                          const Gap(20),
                           DishCard(
                               image: 'assets/images/burger.jpg',
                               dishName: 'Burger'),
-                          Gap(20),
+                          const Gap(20),
                           DishCard(
                             image: 'assets/images/chicken_masala.jpeg',
-                            dishName: 'Indian Chicken Masala',
+                            dishName: 'Chicken Masala',
                           ),
-                          Gap(20),
+                          const Gap(20),
                           DishCard(
                               image: 'assets/images/dal.jpg',
                               dishName: 'Dal Tadka'),
