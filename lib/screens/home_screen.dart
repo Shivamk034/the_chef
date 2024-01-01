@@ -45,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (recipeResponse.statusCode == 200) {
       Map<String, dynamic> detailedRecipe = parseDetailedRecipe(recipeResponse.body);
-      // log(detailedRecipe['instructions'].toString());
+      log(detailedRecipe['instructions'].toString());
       setState(() {
         recipes[index]['ingredients'] = detailedRecipe['ingredients'];
         recipes[index]['instructions'] = detailedRecipe['instructions'];
@@ -242,12 +242,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Container(
-                                color: Colors.grey.shade50,
+                                color: Colors.grey.shade100,
                                 child: Column(
                                   children: [
                                     Image.network(recipe['image'], fit: BoxFit.cover, height: 220, width: 250,),
                                     const Gap(5),
-                                    Text(recipe['label'], textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18,),),
+                                    Text(recipe['label'],overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18,),),
                                     const Gap(3),
                                     Text('Serving: ${recipe['serving']}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
                                   ],
@@ -269,13 +269,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]),
                           axisDirection: AxisDirection.right,
                           loop: true,
-                          duration: 900,
+                          duration: 1100,
                           itemBuilder: (context, index) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(15),
                               child: Container(
                                 padding: const EdgeInsets.all(10),
-                                color: Colors.grey.shade50,
+                                color: Colors.grey.shade100,
                                 child: const Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
