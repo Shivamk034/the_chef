@@ -14,4 +14,4 @@ Flutter, Dart, Edamam Recipe Api
 
 # Note
 
-Create your own api key from www.edamam.com
+Create your own api key from www.spoonacular.com
