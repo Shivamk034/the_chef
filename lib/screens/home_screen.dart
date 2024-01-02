@@ -20,66 +20,36 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   int currentIndex = 0;
   List<Map<String, dynamic>> recipes = [];
+  SwiperController swiperController = SwiperController();
 
-  Future<void> getRecipes(String query) async {
-    String url = 'https://api.edamam.com/search?q=$query&app_id=$appId&app_key=$apiKey';
-    http.Response response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      setState(() {
-        recipes = parseRecipes(response.body);
-      });
-
-      // Fetch detailed information for each recipe
-      for (var i = 0; i < recipes.length; i++) {
-        await getRecipeDetails(recipes[i]['label'], i);
-      }
-    } else {
-      log('Failed to fetch recipes. Status code: ${response.statusCode}');
-    }
-  }
-
-  Future<void> getRecipeDetails(String label, int index) async {
-    String recipeUrl = 'https://api.edamam.com/search?q=$label&app_id=$appId&app_key=$apiKey'; // Use the correct API endpoint
-    http.Response recipeResponse = await http.get(Uri.parse(recipeUrl));
-
-    if (recipeResponse.statusCode == 200) {
-      Map<String, dynamic> detailedRecipe = parseDetailedRecipe(recipeResponse.body);
-      log(detailedRecipe['instructions'].toString());
-      setState(() {
-        recipes[index]['ingredients'] = detailedRecipe['ingredients'];
-        recipes[index]['instructions'] = detailedRecipe['instructions'];
-      });
-    } else {
-      log('Failed to fetch recipe details. Status code: ${recipeResponse.statusCode}');
-    }
-  }
-
-  Map<String, dynamic> parseDetailedRecipe(String responseBody) {
-    final parsed = json.decode(responseBody);
-    final List<dynamic> hits = parsed['hits'];
-
-    // Extract detailed information for the first hit
-    final detailedRecipeData = hits[0]['recipe'];
-
-    return {
-      'ingredients': detailedRecipeData['ingredientLines']?.cast<String>() ?? [],
-      'instructions': detailedRecipeData['instructionLines']?.cast<String>() ?? [],
-    };
-  }
-
-  List<Map<String, dynamic>> parseRecipes(String responseBody) {
-    final parsed = json.decode(responseBody);
-    final List<dynamic> hits = parsed['hits'];
-
-    return hits.map<Map<String, dynamic>>((hit) {
-      final recipeData = hit['recipe'];
+  List<Map<String, dynamic>> parseRecipe(String responseBody) {
+    final parsed = jsonDecode(responseBody);
+    return parsed['results'].map<Map<String, dynamic>>((recipe) {
       return {
-        'image': recipeData['image'],
-        'label': recipeData['label'],
-        'serving': recipeData['yield']?.toInt().toString() ?? '',
+        'image': recipe['image'],
+        'label': recipe['title'],
+        'serving': recipe['servings']?.toString() ?? '',
+        'instruction': recipe['analyzedInstructions'],
       };
     }).toList();
+  }
+
+  Future<void> getRecipes(String query) async {
+    String url = 'https://api.spoonacular.com/recipes/searchComplex?apiKey=$apiKey&query=$query&number=8&addRecipeInformation=true';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          recipes = parseRecipe(response.body);
+        });
+      } else {
+        // Handle the case where the API request failed
+        log('Failed to fetch recipes. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle other potential errors during the API request
+      log('Error during API request: $e');
+    }
   }
 
   @override
@@ -220,6 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag: ValueKey<String>(recipes.isNotEmpty ? recipes[currentIndex]['label'] : ''),
                         child: hasRecipes ?
                         Swiper(
+                          controller: swiperController,
                           onIndexChanged: (index) {
                             setState(() {
                               currentIndex = index;
@@ -236,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]),
                           axisDirection: AxisDirection.right,
                           loop: true,
-                          duration: 900,
+                          duration: 800,
                           itemBuilder: (context, index) {
                             final recipe = recipes[index];
                             return ClipRRect(
@@ -258,6 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemHeight: 320,
                           itemWidth: 250,
                         ) : Swiper(
+                          controller: swiperController,
                           itemCount: 3,
                           layout: SwiperLayout.CUSTOM,
                           customLayoutOption: CustomLayoutOption(startIndex: -1, stateCount: 3)
@@ -269,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ]),
                           axisDirection: AxisDirection.right,
                           loop: true,
-                          duration: 1100,
+                          duration: 800,
                           itemBuilder: (context, index) {
                             return ClipRRect(
                               borderRadius: BorderRadius.circular(15),

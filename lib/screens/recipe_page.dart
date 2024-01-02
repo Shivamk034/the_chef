@@ -36,18 +36,15 @@ class RecipeScreen extends StatelessWidget {
                 ),
                 const Gap(10),
                 Center(
-                  child: Hero(
-                    tag: 'recipeImage_${recipe['label']}_$currentIndex',
-                    child: Container(
-                      height: 200, // Set the height as needed
-                      decoration:  BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(recipe['image'] ?? ''), // Provide the image asset path
-                          fit: BoxFit.cover, // Adjust the BoxFit as needed
-                        ),
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(20.0),
+                  child: Container(
+                    height: 200, // Set the height as needed
+                    decoration:  BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(recipe['image'] ?? ''), // Provide the image asset path
+                        fit: BoxFit.cover, // Adjust the BoxFit as needed
                       ),
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
                 ),
@@ -59,12 +56,17 @@ class RecipeScreen extends StatelessWidget {
                     fontWeight: FontWeight.w600
                   ),
                 ),
-                const Gap(10),
-                for (var ingredient in recipe['ingredients'] ?? [])
-                  ListTile(
-                    leading: const Text('•', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 30)),
-                    title: Text(ingredient),
-                  ),
+
+                for(var prep in recipe['instruction'])
+                  for(var step in prep['steps'])
+                    for (var ingredient in step['ingredients'])
+                      Row(
+                        children: [
+                          const Text('\u2022',  style: TextStyle(fontSize: 18)),
+                          const Gap(25),
+                          Text(ingredient['name'], style: const TextStyle(fontSize: 14),),
+                        ],
+                      ),
                 const Gap(10),
                 const Text(
                   'Instructions',
@@ -73,15 +75,13 @@ class RecipeScreen extends StatelessWidget {
                       fontWeight: FontWeight.w600
                   ),
                 ),
-                const Gap(10),
-                if (recipe['instructions']?.isNotEmpty == true)
-                  for (var instruction in recipe['instructions']!)
-                    ListTile(
-                      leading: const Text('•', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 30)),
-                      title: Text(instruction),
-                    )
-                else
-                  const Text('No instructions available.', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18)),
+                for(var prep in recipe['instruction'])
+                  for(var step in prep['steps'])
+                      ListTile(
+                        dense: true,
+                        leading: Text(step['number'].toString(),),
+                        title: Text(step['step']),
+                      )
               ],
             ),
           ),
