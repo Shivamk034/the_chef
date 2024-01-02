@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_chef/screens/featured_recipes_page.dart';
+import 'package:the_chef/screens/recipes_info_page.dart';
 import 'package:the_chef/utils/featured_recipes_info.dart';
 
 class DishCard extends StatelessWidget {

@@ -1,13 +1,10 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
 import 'package:the_chef/screens/recipe_page.dart';
+import 'package:the_chef/utils/api_service.dart';
 import 'package:the_chef/widgets/categories.dart';
 import 'package:the_chef/widgets/dish_card.dart';
-import 'package:http/http.dart' as http;
-import '../keys/keys.dart';
-import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,36 +17,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   int currentIndex = 0;
   List<Map<String, dynamic>> recipes = [];
-  SwiperController swiperController = SwiperController();
+  // SwiperController swiperController = SwiperController();
 
-  List<Map<String, dynamic>> parseRecipe(String responseBody) {
-    final parsed = jsonDecode(responseBody);
-    return parsed['results'].map<Map<String, dynamic>>((recipe) {
-      return {
-        'image': recipe['image'],
-        'label': recipe['title'],
-        'serving': recipe['servings']?.toString() ?? '',
-        'instruction': recipe['analyzedInstructions'],
-      };
-    }).toList();
-  }
-
-  Future<void> getRecipes(String query) async {
-    String url = 'https://api.spoonacular.com/recipes/searchComplex?apiKey=$apiKey&query=$query&number=8&addRecipeInformation=true';
-    try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        setState(() {
-          recipes = parseRecipe(response.body);
-        });
-      } else {
-        // Handle the case where the API request failed
-        log('Failed to fetch recipes. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Handle other potential errors during the API request
-      log('Error during API request: $e');
-    }
+  Future<void> getRecipes(String query) async{
+    final List<Map<String, dynamic>> results = await apiServices.getRecipes(query);
+    setState(() {
+      recipes = results;
+    });
   }
 
   @override
@@ -87,6 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     margin: const EdgeInsets.only(top: 10),
                     child: TextField(
                       controller: _controller,
+                      onSubmitted: (query) {
+                        getRecipes(query);
+                      },
                       decoration: InputDecoration(
                           hintText: 'Search for Recipes',
                           suffixIcon: GestureDetector(onTap:() => getRecipes(_controller.text), child: const Icon(Icons.search)),
@@ -190,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag: ValueKey<String>(recipes.isNotEmpty ? recipes[currentIndex]['label'] : ''),
                         child: hasRecipes ?
                         Swiper(
-                          controller: swiperController,
+                          // controller: swiperController,
                           onIndexChanged: (index) {
                             setState(() {
                               currentIndex = index;
@@ -229,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemHeight: 320,
                           itemWidth: 250,
                         ) : Swiper(
-                          controller: swiperController,
+                          // controller: swiperController,
                           itemCount: 3,
                           layout: SwiperLayout.CUSTOM,
                           customLayoutOption: CustomLayoutOption(startIndex: -1, stateCount: 3)
