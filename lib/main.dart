@@ -1,9 +1,18 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:the_chef/screens/recipes_info_page.dart';
 import 'package:the_chef/screens/home_screen.dart';
-import 'package:the_chef/screens/login_screen.dart';
+import 'package:the_chef/screens/signUp_screen.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+        apiKey: 'AIzaSyArTJRzcko1Ge1F-jzB_tbh-1rKcxwOjfg',
+        appId: '1:50339887999:android:7270913822f05085d9f84a',
+        messagingSenderId: '50339887999',
+        projectId: 'recipeapp-d6d00',
+    )
+  );
   runApp(const MyApp());
 }
 
@@ -19,10 +28,10 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routes: {
-        'loginScreen': (context) => const LoginScreen(),
+        'signUpScreen': (context) => const SignUpScreen(),
         'homeScreen': (context) => const HomeScreen(),
       },
-      home: const LoginScreen(),
+      home: const SignUpScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

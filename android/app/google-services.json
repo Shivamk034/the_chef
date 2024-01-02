@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "50339887999",
+    "project_id": "recipeapp-d6d00",
+    "storage_bucket": "recipeapp-d6d00.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50339887999:android:7270913822f05085d9f84a",
+        "android_client_info": {
+          "package_name": "com.example.the_chef"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArTJRzcko1Ge1F-jzB_tbh-1rKcxwOjfg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
