@@ -42,7 +42,22 @@ class AuthServices{
 }
 
 class FirestoreServices {
+
   static saveUser(String name, email, uid) async {
     await FirebaseFirestore.instance.collection('users').doc(uid).set({'email': email, 'name': name});
+  }
+
+  static getUserName(String uid) async{
+    try{
+      var doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists){
+        return doc['name'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('error occured while fetching username: $e');
+      return null;
+    }
   }
 }

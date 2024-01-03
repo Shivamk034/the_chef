@@ -7,6 +7,8 @@ import 'package:the_chef/utils/api_service.dart';
 import 'package:the_chef/widgets/categories.dart';
 import 'package:the_chef/widgets/dish_card.dart';
 
+import '../authentication/firebase_auth.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -18,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   int currentIndex = 0;
   List<Map<String, dynamic>> recipes = [];
+  late String _username = '';
   // SwiperController swiperController = SwiperController();
 
   Future<void> getRecipes(String query) async{
@@ -25,6 +28,21 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       recipes = results;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsername();
+  }
+
+  Future<void> _fetchUsername() async {
+    String? username = await FirestoreServices.getUserName(FirebaseAuth.instance.currentUser!.uid);
+    if (username != null) {
+       setState(() {
+         _username = username;
+       });
+    }
   }
 
   @override
@@ -45,8 +63,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Hi, Shivam',
-                            style: TextStyle(
+                        Text('Hi, $_username',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             )),
