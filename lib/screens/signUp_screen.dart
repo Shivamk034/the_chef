@@ -1,17 +1,31 @@
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:the_chef/authentication/firebase_auth.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _controller = TextEditingController();
+class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
   bool passwordVisible = false;
   bool isChecked = false;
+
+  String email = '';
+  String password = '';
+  String name = '';
+  bool login = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,26 +149,64 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.black.withOpacity(0.5),
                 ),
               ),
-              const Text(
-                'Create Your Account',
-                style: TextStyle(
+              Text(
+                login ? 'Login to Your Account' :'Create Your Account',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
               ),
               const Gap(5),
-              SafeArea(
-                left: true,
-                right: true,
-                child: Container(
-                  margin: const EdgeInsets.only(top: 18, left: 24, right: 24),
-                  width: 340,
-                  height: 238,
+              Container(
+                margin: const EdgeInsets.only(top: 18, left: 24, right: 24),
+                width: 340,
+                child: Form(
+                  key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (!login)  // Show only if not in login mode
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Name',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const Gap(2),
+                            //... other widgets for the name field
+                            TextFormField(
+                              key: const ValueKey('name'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your name';
+                                }
+                                return null;
+                              },
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                hintText: 'Type Your Name',
+                              ),
+                              onSaved: (value) {
+                                setState(() {
+                                  name = value!;
+                                });
+                              },
+                              textDirection: TextDirection.ltr,
+                            ),
+                            const Gap(6),
+                          ],
+                        ),
                       const Text(
                         'Email',
                         style: TextStyle(
@@ -164,9 +216,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const Gap(2),
-                      TextField(
-                        controller: _controller,
+                      //==================EMAIL=====================//
+                      TextFormField(
+                        key: const ValueKey('email'),
+                        validator: (value) {
+                          if(value == null || value.isEmpty || !value.contains('@')) {
+                            return 'Please enter valid email';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          email = value!;
+                        },
+                        controller: _emailController,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -184,9 +248,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const Gap(2),
-                      TextField(
+                      //=======PASSWORD=====//
+                      TextFormField(
+                        key: const ValueKey('password'),
+                        validator: (value) {
+                          if(value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          password = value!;
+                        },
+                        controller: _passwordController,
                         obscureText: !passwordVisible,
                         decoration: InputDecoration(
+                          isDense: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -228,30 +305,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(top: 25),
+              SizedBox(
                 width: 250,
                 child: FilledButton(
                   style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xff0dc0de)),
                   onPressed: () {
-                    Navigator.pushNamed(context, 'homeScreen');
+                    if(_formKey.currentState!.validate()){
+                      _formKey.currentState!.save();
+                      login
+                          ? AuthServices.signInUser(email, password, context)
+                          : AuthServices.signUpUser(name, email, password, context);
+                    }
                   },
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(
+                  child:  Text(
+                    login ? 'Login' : 'Sign Up',
+                    style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.white),
                   ),
                 ),
               ),
-              const Gap(30),
+              const Gap(10),
               Text.rich(
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Already have an account? ',
+                      text: login ? "Don't have an account? " : "Already have an account? ",
                       style: TextStyle(
                         color: Colors.black.withOpacity(0.3),
                         fontSize: 15,
@@ -259,9 +340,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 0,
                       ),
                     ),
-                    const TextSpan(
-                      text: 'Login',
-                      style: TextStyle(
+                    TextSpan(
+                      recognizer: TapGestureRecognizer()
+                       ..onTap = (){
+                            setState(() {
+                              login = !login;
+                            });
+                        },
+                      text: login ? 'SignUp' : 'Login',
+                      style: const TextStyle(
                         color: Color(0xFF103C4A),
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

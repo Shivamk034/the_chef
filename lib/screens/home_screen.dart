@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
@@ -5,6 +6,8 @@ import 'package:the_chef/screens/recipe_page.dart';
 import 'package:the_chef/utils/api_service.dart';
 import 'package:the_chef/widgets/categories.dart';
 import 'package:the_chef/widgets/dish_card.dart';
+
+import '../authentication/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _controller = TextEditingController();
   int currentIndex = 0;
   List<Map<String, dynamic>> recipes = [];
+  late String _username = '';
   // SwiperController swiperController = SwiperController();
 
   Future<void> getRecipes(String query) async{
@@ -24,6 +28,21 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       recipes = results;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsername();
+  }
+
+  Future<void> _fetchUsername() async {
+    String? username = await FirestoreServices.getUserName(FirebaseAuth.instance.currentUser!.uid);
+    if (username != null) {
+       setState(() {
+         _username = username;
+       });
+    }
   }
 
   @override
@@ -41,17 +60,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 20),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Hi, Shivam',
-                            style: TextStyle(
+                        Text('Hi, $_username',
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             )),
-                        Icon(
-                          Icons.notifications,
-                          size: 30,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.notifications,
+                              size: 30,
+                            ),
+                            const Gap(20),
+                            GestureDetector(
+                              onTap: () async {
+                                FirebaseAuth.instance.signOut();
+                              },
+                              child: const Icon(
+                                Icons.logout,
+                                size: 30,
+                              ),
+                            )
+                          ],
                         )
                       ],
                     ),
@@ -66,9 +99,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       decoration: InputDecoration(
                           hintText: 'Search for Recipes',
+                          isDense: true,
                           suffixIcon: GestureDetector(onTap:() => getRecipes(_controller.text), child: const Icon(Icons.search)),
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0))),
+                            borderRadius: BorderRadius.circular(12.0)
+                          )),
                     ),
                   ),
                   Container(
