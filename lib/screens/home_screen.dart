@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper_view/flutter_swiper_view.dart';
 import 'package:gap/gap.dart';
@@ -41,17 +42,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 20),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Hi, Shivam',
+                        const Text('Hi, Shivam',
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             )),
-                        Icon(
-                          Icons.notifications,
-                          size: 30,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.notifications,
+                              size: 30,
+                            ),
+                            const Gap(20),
+                            GestureDetector(
+                              onTap: () async {
+                                FirebaseAuth.instance.signOut();
+                              },
+                              child: const Icon(
+                                Icons.logout,
+                                size: 30,
+                              ),
+                            )
+                          ],
                         )
                       ],
                     ),
@@ -66,9 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       decoration: InputDecoration(
                           hintText: 'Search for Recipes',
+                          isDense: true,
                           suffixIcon: GestureDetector(onTap:() => getRecipes(_controller.text), child: const Icon(Icons.search)),
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0))),
+                            borderRadius: BorderRadius.circular(12.0)
+                          )),
                     ),
                   ),
                   Container(

@@ -1,8 +1,8 @@
-import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'login_screen.dart';
+import 'package:the_chef/authentication/firebase_auth.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -21,19 +21,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool passwordVisible = false;
   bool isChecked = false;
 
-  String name = '', email = '', password = '';
+  String email = '';
+  String password = '';
+  String name = '';
+  bool login = false;
 
-  signUpWithEmail() async{
-    if(password != '' && _emailController.text != "" && _nameController.text != "") {
-      try{
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-      }
-      catch(e) {
-        log("Error during sign up: $e");
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +149,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   color: Colors.black.withOpacity(0.5),
                 ),
               ),
-              const Text(
-                'Create Your Account',
-                style: TextStyle(
+              Text(
+                login ? 'Login to Your Account' :'Create Your Account',
+                style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
@@ -175,33 +167,46 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Name',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
+                      if (!login)  // Show only if not in login mode
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Name',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const Gap(2),
+                            //... other widgets for the name field
+                            TextFormField(
+                              key: const ValueKey('name'),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your name';
+                                }
+                                return null;
+                              },
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                hintText: 'Type Your Name',
+                              ),
+                              onSaved: (value) {
+                                setState(() {
+                                  name = value!;
+                                });
+                              },
+                              textDirection: TextDirection.ltr,
+                            ),
+                            const Gap(6),
+                          ],
                         ),
-                      ),
-                      const Gap(2),
-                      TextFormField(
-                        validator: (value) {
-                          if(value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          hintText: 'Type Your Name',
-                        ),
-                        textDirection: TextDirection.ltr,
-                      ),
-                      const Gap(6),
                       const Text(
                         'Email',
                         style: TextStyle(
@@ -211,12 +216,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const Gap(2),
+                      //==================EMAIL=====================//
                       TextFormField(
+                        key: const ValueKey('email'),
                         validator: (value) {
-                          if(value == null || value.isEmpty) {
-                            return 'Please enter your email';
+                          if(value == null || value.isEmpty || !value.contains('@')) {
+                            return 'Please enter valid email';
                           }
                           return null;
+                        },
+                        onSaved: (value) {
+                          email = value!;
                         },
                         controller: _emailController,
                         decoration: InputDecoration(
@@ -238,12 +248,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const Gap(2),
+                      //=======PASSWORD=====//
                       TextFormField(
+                        key: const ValueKey('password'),
                         validator: (value) {
                           if(value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
                           return null;
+                        },
+                        onSaved: (value) {
+                          password = value!;
                         },
                         controller: _passwordController,
                         obscureText: !passwordVisible,
@@ -297,17 +312,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       backgroundColor: const Color(0xff0dc0de)),
                   onPressed: () {
                     if(_formKey.currentState!.validate()){
-                      setState(() {
-                        name = _nameController.text;
-                        email = _emailController.text;
-                        password = _passwordController.text;
-                      });
-                      signUpWithEmail();
+                      _formKey.currentState!.save();
+                      login
+                          ? AuthServices.signInUser(email, password, context)
+                          : AuthServices.signUpUser(name, email, password, context);
                     }
                   },
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(
+                  child:  Text(
+                    login ? 'Login' : 'Sign Up',
+                    style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: Colors.white),
@@ -319,7 +332,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Already have an account? ',
+                      text: login ? "Don't have an account? " : "Already have an account? ",
                       style: TextStyle(
                         color: Colors.black.withOpacity(0.3),
                         fontSize: 15,
@@ -327,9 +340,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         height: 0,
                       ),
                     ),
-                    const TextSpan(
-                      text: 'Login',
-                      style: TextStyle(
+                    TextSpan(
+                      recognizer: TapGestureRecognizer()
+                       ..onTap = (){
+                            setState(() {
+                              login = !login;
+                            });
+                        },
+                      text: login ? 'SignUp' : 'Login',
+                      style: const TextStyle(
                         color: Color(0xFF103C4A),
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
