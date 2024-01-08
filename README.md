@@ -10,7 +10,7 @@ The Chef is a flutter based recipe app.
 
 # Tech Used
 
-Flutter, Dart, Edamam Recipe Api
+Flutter, Dart, Spoonacular Recipe Api
 
 # Screen Shots
 
