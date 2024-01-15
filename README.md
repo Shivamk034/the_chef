@@ -1,6 +1,6 @@
 # The Chef
 
-The Chef is a flutter based recipe app.
+The Chef is a flutter based recipe app. 
 
 # Features
 
@@ -34,4 +34,4 @@ Flutter, Dart, Spoonacular Recipe Api
 
 # Note
 
-Create your own api key from www.spoonacular.com
+Create your own api key from www.spoonacular.com.
